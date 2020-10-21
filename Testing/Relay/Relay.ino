@@ -30,6 +30,7 @@ void loop() {
   delay(1000);
   digitalWrite(greenLEDpin, LOW);
   digitalWrite(RelayPin, LOW);
+  delay(1000);
 
 
 
