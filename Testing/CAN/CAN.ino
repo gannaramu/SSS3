@@ -14,11 +14,12 @@
 //
 
 #include "src/FlexCAN_Library/src/FlexCAN.h"
-
+const int8_t greenLEDpin       = 2;
+const int8_t redLEDpin         = 5;
+const int8_t RelayPin         = 39;
 //Create a counter to keep track of message traffic
 uint32_t RXCount0 = 0;
 uint32_t RXCount1 = 0;
-const int8_t RelayPin         = 39;
 
 //Define message structure from FlexCAN library
 static CAN_message_t rxmsg;
@@ -41,35 +42,46 @@ void printFrame(CAN_message_t rxmsg, uint8_t channel, uint32_t RXCount)
 
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
+
+  pinMode(greenLEDpin, OUTPUT);
+  pinMode(redLEDpin, OUTPUT);
+  pinMode(RelayPin, OUTPUT);
+  digitalWrite(greenLEDpin, HIGH);
+  digitalWrite(redLEDpin, HIGH);
   digitalWrite(RelayPin, HIGH);
 
+  delay(1000);
+  digitalWrite(greenLEDpin, HIGH);
+  digitalWrite(redLEDpin, HIGH);
+  digitalWrite(RelayPin, HIGH);
+  pinMode(LED_BUILTIN, OUTPUT);
   LED_state = true;
   digitalWrite(LED_BUILTIN, LED_state);
-  pinMode(RelayPin, OUTPUT);
 
-  while(!Serial);
+  while (!Serial);
   Serial.println("Starting CAN Autobaud Test.");
-  
+
   //Initialize the CAN channels with autobaud setting
   Can0.begin(0);
-  #if defined(__MK66FX1M0__)
+#if defined(__MK66FX1M0__)
   Can1.begin(0);
-  #endif
+#endif
 }
 
 void loop()
 {
   while (Can0.read(rxmsg)) {
-    printFrame(rxmsg,0,RXCount0++);
+    printFrame(rxmsg, 0, RXCount0++);
     LED_state = !LED_state;
     digitalWrite(LED_BUILTIN, LED_state);
+    digitalWrite(redLEDpin, LED_state);
   }
-  #if defined(__MK66FX1M0__)
+#if defined(__MK66FX1M0__)
   while (Can1.read(rxmsg)) {
-    printFrame(rxmsg,1,RXCount1++);
+    printFrame(rxmsg, 1, RXCount1++);
     LED_state = !LED_state;
     digitalWrite(LED_BUILTIN, LED_state);
-   }
-  #endif
+    digitalWrite(redLEDpin, LED_state);
+  }
+#endif
 }
