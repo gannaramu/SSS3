@@ -22,7 +22,7 @@
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = {
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x01
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x03
 };
 
 void setup() {
@@ -31,7 +31,7 @@ void setup() {
 //  pinMode(14, OUTPUT);
 //  // You can use Ethernet.init(pin) to configure the CS pin
 //  digitalWrite(17, HIGH);
-  Ethernet.init(14);  // Most Arduino shields
+  Ethernet.init(10);  // Most Arduino shields
   //Ethernet.init(5);   // MKR ETH shield
   //Ethernet.init(0);   // Teensy 2.0
   //Ethernet.init(20);  // Teensy++ 2.0
@@ -64,7 +64,6 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Loop");
   switch (Ethernet.maintain()) {
     case 1:
       //renewed fail
@@ -94,7 +93,6 @@ void loop() {
 
     default:
       //nothing happened
-      Serial.println("Broke");
       break;
   }
      

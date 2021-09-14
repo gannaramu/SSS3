@@ -18,6 +18,7 @@
 //Create a counter to keep track of message traffic
 uint32_t RXCount0 = 0;
 uint32_t RXCount1 = 0;
+const int8_t RelayPin         = 39;
 
 //Define message structure from FlexCAN library
 static CAN_message_t rxmsg;
@@ -41,9 +42,12 @@ void printFrame(CAN_message_t rxmsg, uint8_t channel, uint32_t RXCount)
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(RelayPin, HIGH);
+
   LED_state = true;
   digitalWrite(LED_BUILTIN, LED_state);
-  
+  pinMode(RelayPin, OUTPUT);
+
   while(!Serial);
   Serial.println("Starting CAN Autobaud Test.");
   
