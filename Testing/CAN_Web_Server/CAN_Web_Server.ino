@@ -43,12 +43,10 @@ void printFrame(CAN_message_t rxmsg, uint8_t channel, uint32_t RXCount)
 
     //    Serial.print(CANBytes);
   }
-  Serial.println();
   Serial.print(name_with_extension);
   Serial.println();
 
-//  server.write(name_with_extension, strlen(name_with_extension));
-
+  server.write(name_with_extension, strlen(name_with_extension));
 }
 // The setup routine runs once when you press reset.
 void setup()
