@@ -53,13 +53,13 @@
 #include "OneButton.h"
 #include <i2c_t3.h>
 #include <EEPROM.h>
-#include "FlexCAN.h"
+#include <FlexCAN.h>
 #include <TimeLib.h>
 #include <TeensyID.h>
 #include "FastCRC.h"
 #include "Thread.h"
 #include "ThreadController.h"
-#include "base64.hpp"
+#include <base64.hpp>
 
 
 FastCRC16 CRC16;
@@ -193,7 +193,7 @@ bool load_settings() {
 /****************************************************************/
 /*                    Quadrature Knob Setup                     */
 
-Encoder knob(encoderAPin, encoderBPin);
+// Encoder knob(encoderAPin, encoderBPin);
 int32_t currentKnob = 0;
 
 int knobLowLimit = 0;
@@ -1972,7 +1972,7 @@ void turnOnAdjustMode() {
   Serial.print(currentSetting);
   Serial.print(" - ");
   Serial.println(settingNames[currentSetting]);
-  knob.write(setSetting(currentSetting, -1, DEBUG_OFF));
+  // knob.write(setSetting(currentSetting, -1, DEBUG_OFF));
   setLimits(currentSetting);
 
 }
@@ -1980,7 +1980,7 @@ void turnOnAdjustMode() {
 void turnOffAdjustMode() {
   ADJUST_MODE_ON = 0;
   Serial.println(("INFO AF - Turned Setting Adjustment mode off. Type AO to turn on. Scroll knob to select a setting."));
-  knob.write(currentSetting);
+  // knob.write(currentSetting);
   knobLowLimit = 1;
   knobHighLimit = numSettings - 1;
 }
@@ -2014,14 +2014,14 @@ void changeSetting() {
   //listSetting(currentSetting);
   if (ADJUST_MODE_ON) {
     setLimits(currentSetting);
-    knob.write(setSetting(currentSetting, -1, DEBUG_OFF));
+    // knob.write(setSetting(currentSetting, -1, DEBUG_OFF));
   }
   else {
-    if (knob.read() == currentSetting) {
-      Serial.print("INFO ");
-      setSetting(currentSetting, -1, DEBUG_ON);
-    }
-    else knob.write(currentSetting); //automatic listSetting if knob changes
+    // if (knob.read() == currentSetting) {
+    //   Serial.print("INFO ");
+    //   setSetting(currentSetting, -1, DEBUG_ON);
+    // }
+    // else knob.write(currentSetting); //automatic listSetting if knob changes
     knobLowLimit = 1;
     knobHighLimit = numSettings - 1;
   }
@@ -2041,7 +2041,7 @@ void changeValue() {
     Serial.println(("INFO SS - Set Setting."));
     int adjustmentValue = constrain(commandString.toInt(), knobLowLimit, knobHighLimit);
     currentKnob = setSetting(currentSetting, adjustmentValue, DEBUG_ON);
-    knob.write(currentKnob);
+    // knob.write(currentKnob);
   }
   else
   {
@@ -2286,7 +2286,11 @@ void printFrame(CAN_message_t rxmsg, uint8_t can_channel, uint32_t RXCount)
     can_buffer[61]++; // increment the counter
     uint16_t can_checksum = CRC16.ccitt(can_buffer, 62);
     memcpy(&can_buffer[62], &can_checksum, 2);
+    #ifdef USB_RAWHID 
     byte ret_val = RawHID.send(can_buffer, timeout);
+    #else
+    Serial.print("CAN buffer: ");
+    #endif
     memset(can_buffer, 0xFF, 61);
     can_buffer[0] = 0x20;
   }

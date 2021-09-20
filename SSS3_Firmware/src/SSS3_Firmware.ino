@@ -36,10 +36,10 @@
  * 
  * Uses Arduino 1.8.5 and Teensyduino 1.41
 */
-#include "SSS2_defines.h"
-#include "SSS2_board_defs_rev_5.h"
-#include "SSS2_functions.h"
-#include "SSS2_LIN_functions.h"
+#include "SSS3_defines.h"
+#include "SSS3_board_defs_rev_1.h"
+#include "SSS3_functions.h"
+#include "SSS3_LIN_functions.h"
 #include "version.h"
 #include "base64.hpp"
 
@@ -301,7 +301,9 @@ void loop() {
     memcpy(&usb_hid_rx_buffer[62], &checksum, 2);
   }
   else{
+    #ifdef USB_RAWHID 
     n = RawHID.recv(usb_hid_rx_buffer,0);
+    #endif
   }
   if (n > 0 ){
     // Extract the CRC from the message
@@ -361,7 +363,7 @@ void loop() {
         else if (commandPrefix.equalsIgnoreCase("LOAD"))      load_settings();
         else if (commandPrefix.equalsIgnoreCase("SAVE"))      save_settings();
         else {
-          //Serial.println(("ERROR Unrecognized Command Characters."));
+          Serial.println(("ERROR Unrecognized Command Characters."));
         }
       }
     }
@@ -371,30 +373,30 @@ void loop() {
 
   /****************************************************************/
   /*            Begin Quadrature Knob Processing                  */
-  button.tick() ; //check for presses
-  int32_t newKnob = knob.read(); //check for turns
-  if (newKnob != currentKnob) {
-    if (newKnob >= knobHighLimit) {  //note: knob limits are for each input parameter
-      knob.write(knobHighLimit);
-      currentKnob = knobHighLimit;
-    }
-    else if (newKnob <= knobLowLimit) {
-      knob.write(knobLowLimit);
-      currentKnob = knobLowLimit;
-    }
-    else
-    {
-      currentKnob = newKnob;
-    }
-    //Place function calls to execute when the knob turns.
-    if (ADJUST_MODE_ON) {
-      setSetting(currentSetting, currentKnob,DEBUG_ON);
-    }
-    else {
-      currentSetting = currentKnob;
-      setSetting(currentSetting,-1,DEBUG_ON);
-    }
-  }
+  // button.tick() ; //check for presses
+  // int32_t newKnob = knob.read(); //check for turns
+  // if (newKnob != currentKnob) {
+  //   if (newKnob >= knobHighLimit) {  //note: knob limits are for each input parameter
+  //     knob.write(knobHighLimit);
+  //     currentKnob = knobHighLimit;
+  //   }
+  //   else if (newKnob <= knobLowLimit) {
+  //     knob.write(knobLowLimit);
+  //     currentKnob = knobLowLimit;
+  //   }
+  //   else
+  //   {
+  //     currentKnob = newKnob;
+  //   }
+  //   //Place function calls to execute when the knob turns.
+  //   if (ADJUST_MODE_ON) {
+  //     setSetting(currentSetting, currentKnob,DEBUG_ON);
+  //   }
+  //   else {
+  //     currentSetting = currentKnob;
+  //     setSetting(currentSetting,-1,DEBUG_ON);
+  //   }
+  // }
   /*            End Quadrature Knob Processing                    */
   /****************************************************************/
 

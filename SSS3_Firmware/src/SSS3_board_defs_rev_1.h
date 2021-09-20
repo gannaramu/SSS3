@@ -67,6 +67,8 @@ const int8_t IH2Pin            = 36;
 const int8_t IL1Pin            = 37;
 const int8_t IL2Pin            = 38;
 const int8_t ignitionCtlPin    = 39;
+const int8_t buttonPin         = 50; // Unused Pin no Button
+
 
 const uint8_t numPWMs = 6;
 const int8_t PWMPins[numPWMs]     = {29,30,14,22,23,16};
@@ -86,13 +88,13 @@ const uint8_t numSPIpots = 16;
 uint8_t  SPIpotWiperSettings[numSPIpots] ={21,22,22,56,56,0,10,56,56,30,56,56,56,56,56,255};
 uint8_t  SPIpotTCONSettings[numSPIpots] ={3,3,3,7,7,3,3,7,7,7,0,0,7,7,7,0};
 
-// const uint8_t numI2Cpots = 3;
-// uint8_t  I2CpotWiperSettings[numI2Cpots] = {75,150,225};
-// uint8_t  I2CpotTCONSettings[numI2Cpots] = {7,7,7};
-// const uint8_t I2CpotAddr[numI2Cpots] = {U34_I2C_ADDR,U36_I2C_ADDR,U37_I2C_ADDR};
+const uint8_t numI2Cpots = 3;
+uint8_t  I2CpotWiperSettings[numI2Cpots] = {75,150,225};
+uint8_t  I2CpotTCONSettings[numI2Cpots] = {7,7,7};
+const uint8_t I2CpotAddr[numI2Cpots] = {U34_I2C_ADDR,U36_I2C_ADDR,U37_I2C_ADDR};
 
-// const uint8_t numDACs = 8;
-// uint16_t DAC2value[numDACs] = {0,0,0,0,512,512,0,0};
+const uint8_t numDACs = 8;
+uint16_t DAC2value[numDACs] = {0,0,0,0,512,512,0,0};
 
 
 
@@ -125,7 +127,7 @@ void setPinModes(){
     pinMode(CSCANPin,        OUTPUT);
     pinMode(CSconfigAPin,    OUTPUT);
     pinMode(CSconfigBPin,    OUTPUT);
-    pinMode(buttonPin, INPUT_PULLUP);
+
     pinMode(IH1Pin,          OUTPUT);
     pinMode(IH2Pin,          OUTPUT);
     pinMode(IL1Pin,          OUTPUT);
