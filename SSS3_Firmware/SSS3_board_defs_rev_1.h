@@ -1,14 +1,14 @@
 /*
- * Smart Sensor Simulator 2
+ * Smart Sensor Simulator 3
  * 
  * Arduino Sketch to define the board pins and features
  * Uses the Teensy 3.6
  * 
- * Written By Dr. Jeremy S. Daily
- * The University of Tulsa
- * Department of Mechanical Engineering
+ * Written By Ram Rohit Gannavarapu
+ * Colorado State University
  * 
- * 22 May 2017
+ * 
+ * 22 September 2021
  * 
  * Released under the MIT License
  *
@@ -57,12 +57,11 @@ const int8_t greenLEDpin       = 2;
 const int8_t redLEDpin         = 5;
 const int8_t CSCANPin          = 31;
 const int8_t INTCANPin         = 21;
-const int8_t CSconfigAPin      = 26;
-const int8_t CSconfigBPin      = 27;
-const int8_t buttonPin         = 24;
-const int8_t encoderAPin       = 28;
-const int8_t encoderBPin       = 25;
-const int8_t CStouchPin        = 26;
+const int8_t CSconfigAPin      = 24;
+const int8_t CSconfigBPin      = 25;
+const int8_t CSconfigCPin      = 26;
+const int8_t CSconfigDPin      = 27;
+// const int8_t CStouchPin        = 26;
 const int8_t IH1Pin            = 35;
 const int8_t IH2Pin            = 36;
 const int8_t IL1Pin            = 37;
@@ -70,7 +69,7 @@ const int8_t IL2Pin            = 38;
 const int8_t ignitionCtlPin    = 39;
 
 const uint8_t numPWMs = 6;
-const int8_t PWMPins[numPWMs]     = {16,17,22,23,29,30};
+const int8_t PWMPins[numPWMs]     = {29,30,14,22,23,16};
 uint16_t pwmValue[numPWMs] = {500,1000,1500,2000,2500,3000};
 uint16_t pwmFrequency[numPWMs] = {245,245,200,200,100,100};
 
@@ -87,13 +86,13 @@ const uint8_t numSPIpots = 16;
 uint8_t  SPIpotWiperSettings[numSPIpots] ={21,22,22,56,56,0,10,56,56,30,56,56,56,56,56,255};
 uint8_t  SPIpotTCONSettings[numSPIpots] ={3,3,3,7,7,3,3,7,7,7,0,0,7,7,7,0};
 
-const uint8_t numI2Cpots = 3;
-uint8_t  I2CpotWiperSettings[numI2Cpots] = {75,150,225};
-uint8_t  I2CpotTCONSettings[numI2Cpots] = {7,7,7};
-const uint8_t I2CpotAddr[numI2Cpots] = {U34_I2C_ADDR,U36_I2C_ADDR,U37_I2C_ADDR};
+// const uint8_t numI2Cpots = 3;
+// uint8_t  I2CpotWiperSettings[numI2Cpots] = {75,150,225};
+// uint8_t  I2CpotTCONSettings[numI2Cpots] = {7,7,7};
+// const uint8_t I2CpotAddr[numI2Cpots] = {U34_I2C_ADDR,U36_I2C_ADDR,U37_I2C_ADDR};
 
-const uint8_t numDACs = 8;
-uint16_t DAC2value[numDACs] = {0,0,0,0,512,512,0,0};
+// const uint8_t numDACs = 8;
+// uint16_t DAC2value[numDACs] = {0,0,0,0,512,512,0,0};
 
 
 
