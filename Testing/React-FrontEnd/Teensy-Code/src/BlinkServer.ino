@@ -5,6 +5,7 @@
 #include "StaticFiles.h"
 #include "SSS3_defines.h"
 #include "SSS3_board_defs_rev_1.h"
+#include "SSS3_functions.h"
 #include <ArduinoJson.h>
 #include <StreamUtils.h>
 #define LED_BUILTIN 2
@@ -16,7 +17,6 @@ EthernetServer server(80);
 
 Application app;
 DynamicJsonDocument doc(2048);
-DynamicJsonDocument jb(2048);
 ReadLoggingStream loggingStream(Serial, Serial);
 
 bool ledOn;
@@ -27,12 +27,57 @@ char *userFilter[3] = {"name", "password", NULL};
 void read_keySw(Request &req, Response &res)
 {
   Serial.print("Got GET Request for LED returned: ");
-  Serial.println(ledOn);
-
-  res.print(ledOn);
+  Serial.println(ignitionCtlState);
+  res.print(ignitionCtlState);
 }
 
 void update_keySw(Request &req, Response &res)
+{
+
+  // JsonObject& config = jb.parseObject( &req);
+  Serial.print("Got POST Request for LED: ");
+  req.body(buff, sizeof(buff));
+  if (!parse_response(buff))
+  {
+    res.print("Not a valid Json Format");
+  }
+  else
+  {
+    ledOn = doc["ledOn"];
+    Serial.println(ledOn);
+    ignitionCtlState =  doc["ledOn"];
+    redLEDstate = doc["ledOn"];
+    digitalWrite(redLEDpin, redLEDstate);  // Remove Later
+    commandPrefix = "50";
+    if (ignitionCtlState) commandString = "1";
+    else commandString = "0";
+    fastSetSetting();
+    return read_keySw(req, res);
+  }
+}
+
+// PWM Section
+void read_PWM(Request &req, Response &res)
+{
+  DynamicJsonDocument response(2048);
+  char json[2048];
+  int idx = 33-33;
+  Serial.print("Got GET Request for PWM1 returned: ");
+  
+  response["pwm1"] = pwmValue[0];
+  response["pwm2"] = pwmValue[1];
+  response["pwm3"] = pwmValue[2];
+  response["pwm4"] = pwmValue[3];
+  response["pwm5"] = pwmValue[4];
+  response["pwm6"] = pwmValue[5];
+
+  serializeJson(response, json);
+  Serial.println(json);
+  res.print(json);
+ 
+}
+
+void update_PWM(Request &req, Response &res)
 {
 
   // JsonObject& config = jb.parseObject( &req);
@@ -47,9 +92,10 @@ void update_keySw(Request &req, Response &res)
     ledOn = doc["ledOn"];
     Serial.println(ledOn);
     digitalWrite(redLEDpin, ledOn);
-    return read_keySw(req, res);
+    return read_PWM1(req, res);
   }
 }
+
 
 void readRelay(Request &req, Response &res)
 {
@@ -148,6 +194,8 @@ void setup()
 
   app.get("/relay", &readRelay);
   app.put("/relay", &updateRelay);
+  app.post("/pwm", &update_PWM1);
+  app.get("/pwm", &read_PWM1);
 
   // app.get("/user", &readUser);
   // app.put("/user", &updateUser);
