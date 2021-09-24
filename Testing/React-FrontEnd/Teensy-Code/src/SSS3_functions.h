@@ -1044,8 +1044,8 @@ char settingNames[numSettings][50] = {
   "PWM 4 Frequency",
   "PWM 5 and 6 Frequency",
   "PWM 4 Connect",
-  "PWM 5 Value",
-  "PWM 6 Value",
+  "PWM 5 Value", //87
+  "PWM 6 Value", //88
   "PWM 5 Connect",
   "PWM 6 Connect",
   "CAN1 Connect",
@@ -1403,7 +1403,7 @@ int16_t setSetting(uint8_t settingNum, int settingValue, bool debugDisplay) {
     return U15U16P0ASwitch;
   }
   else if (settingNum >= 33 && settingNum <= 36 ) {
-    if (settingValue > -1) pwmValue[settingNum - 33] = uint16_t(constrain(settingValue, 0, 4096));
+    if (settingValue > -1) pwmValue[settingNum - 33] = uint16_t(constrain(settingValue, 0, 256));
     else {
       memcpy(&pwmValue[settingNum - 33], &status_buffer_1[(settingNum - 33) * 2 + 35], 2);
     }

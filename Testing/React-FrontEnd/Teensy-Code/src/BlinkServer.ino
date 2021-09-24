@@ -45,43 +45,63 @@ void update_keySw(Request &req, Response &res)
   {
     ledOn = doc["ledOn"];
     Serial.println(ledOn);
-    ignitionCtlState =  doc["ledOn"];
+    ignitionCtlState = doc["ledOn"];
     redLEDstate = doc["ledOn"];
-    digitalWrite(redLEDpin, redLEDstate);  // Remove Later
+    digitalWrite(redLEDpin, redLEDstate); // Remove Later
     commandPrefix = "50";
-    if (ignitionCtlState) commandString = "1";
-    else commandString = "0";
+    if (ignitionCtlState)
+      commandString = "1";
+    else
+      commandString = "0";
     fastSetSetting();
     return read_keySw(req, res);
   }
 }
 
 // PWM Section
+
+int map_duty_cycle(float duty_cycle)
+{
+  Serial.print("map_duty_cycle input : ");
+  Serial.println(duty_cycle);
+
+  if (duty_cycle < 0)
+    duty_cycle = 0;
+  if (duty_cycle > 100)
+    duty_cycle = 100;
+  int output = map(duty_cycle, 0, 100, 0, 256);
+  return output;
+}
+
 void read_PWM(Request &req, Response &res)
 {
   DynamicJsonDocument response(2048);
   char json[2048];
-  int idx = 33-33;
-  Serial.print("Got GET Request for PWM1 returned: ");
-  
-  response["pwm1"] = pwmValue[0];
-  response["pwm2"] = pwmValue[1];
-  response["pwm3"] = pwmValue[2];
-  response["pwm4"] = pwmValue[3];
-  response["pwm5"] = pwmValue[4];
-  response["pwm6"] = pwmValue[5];
+  int idx = 33 - 33;
+  Serial.print("Got GET Request for PWM returned: ");
+
+  response["pwm1"]["duty"] = pwmValue[0];
+  response["pwm2"]["duty"] = pwmValue[1]; 
+  response["pwm3"]["duty"] = pwmValue[2];
+  response["pwm4"]["duty"] = pwmValue[3];
+  response["pwm5"]["duty"] = pwmValue[4];
+  response["pwm6"]["duty"] = pwmValue[5];
 
   serializeJson(response, json);
   Serial.println(json);
   res.print(json);
- 
 }
-
 void update_PWM(Request &req, Response &res)
 {
+  // Need to Remove after testing Replace with responsible function
+  uint8_t PWMSettings = uint8_t(true | true << 1 | true << 2 | true << 3 |
+                                true << 4 | true << 5 | true << 6 | true << 7);
+  digitalWrite(CSconfigBPin, LOW);
+  SPI1.transfer(PWMSettings);
+  digitalWrite(CSconfigBPin, HIGH);
 
   // JsonObject& config = jb.parseObject( &req);
-  Serial.print("Got PUT Request for LED: ");
+  Serial.print("Got POST Request for PWM: ");
   req.body(buff, sizeof(buff));
   if (!parse_response(buff))
   {
@@ -89,13 +109,51 @@ void update_PWM(Request &req, Response &res)
   }
   else
   {
-    ledOn = doc["ledOn"];
-    Serial.println(ledOn);
-    digitalWrite(redLEDpin, ledOn);
-    return read_PWM1(req, res);
+    if (doc["pwm1"] or doc["pwm1"] > -1)
+    {
+      float pwm1 = doc["pwm1"]["duty"];
+      commandPrefix = "33";
+      commandString = String(map_duty_cycle(pwm1));
+      fastSetSetting();
+    }
+    if (doc["pwm2"])
+    {
+      float pwm2 = doc["pwm2"]["duty"];
+      commandPrefix = "34";
+      commandString = String(map_duty_cycle(pwm2));
+      fastSetSetting();
+    }
+    if (doc["pwm3"])
+    {
+      float pwm3 = doc["pwm3"]["duty"];
+      commandPrefix = "35";
+      commandString = String(map_duty_cycle(pwm3));
+      fastSetSetting();
+    }
+    if (doc["pwm4"])
+    {
+      float pwm4 = doc["pwm4"]["duty"];
+      commandPrefix = "36";
+      commandString = String(map_duty_cycle(pwm4));
+      fastSetSetting();
+    }
+    if (doc["pwm5"])
+    {
+      float pwm5 = doc["pwm5"]["duty"];
+      commandPrefix = "87";
+      commandString = String(map_duty_cycle(pwm5));
+      fastSetSetting();
+    }
+    if (doc["pwm6"])
+    {
+      float pwm6 = doc["pwm6"]["duty"];
+      commandPrefix = "88";
+      commandString = String(map_duty_cycle(pwm6));
+      fastSetSetting();
+    }
+    return read_PWM(req, res);
   }
 }
-
 
 void readRelay(Request &req, Response &res)
 {
@@ -154,7 +212,8 @@ void getter_method(Request &req, Response &res)
 
 void setup()
 {
-
+  SPI.begin();
+  SPI1.begin();
   Ethernet.init(10); // Most Arduino shields
   Serial.begin(9600);
   setPinModes();
@@ -194,8 +253,8 @@ void setup()
 
   app.get("/relay", &readRelay);
   app.put("/relay", &updateRelay);
-  app.post("/pwm", &update_PWM1);
-  app.get("/pwm", &read_PWM1);
+  app.post("/pwm", &update_PWM);
+  app.get("/pwm", &read_PWM);
 
   // app.get("/user", &readUser);
   // app.put("/user", &updateUser);

@@ -72,7 +72,7 @@ const int8_t buttonPin         = 50; // Unused Pin no Button
 
 const uint8_t numPWMs = 6;
 const int8_t PWMPins[numPWMs]     = {29,30,14,22,23,16};
-uint16_t pwmValue[numPWMs] = {500,1000,1500,2000,2500,3000};
+uint16_t pwmValue[numPWMs] = {50,100,125,175,200,255};
 uint16_t pwmFrequency[numPWMs] = {245,245,200,200,100,100};
 
 const uint8_t numADCs = 6;

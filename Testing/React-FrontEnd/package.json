@@ -9,6 +9,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "2.1.8",
+    "react-swipeable-views": "^0.14.0",
     "react-toggle-button": "^2.2.0"
   },
   "scripts": {
@@ -30,7 +31,7 @@
   "devDependencies": {
     "awot-scripts": "0.0.28"
   },
-  "proxy": "http://192.168.1.177",
+  "proxy": "https://b267419f-9780-4c94-9305-3de865b859fa.mock.pstmn.io",
   "awot-static": {
     "sources": "./build",
     "indexFile": "index.html",

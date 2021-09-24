@@ -6,15 +6,11 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import PWM from "./PWM";
-import { useState, useEffect } from "react";
-
-
+import { useEffect } from "react";
 
 function TabPanel(props) {
-  const { children, value, index,...other } = props;
-
-
-
+  const { children, value, index,state, ...other } = props;
+ 
   return (
     <div
       role="tabpanel"
@@ -79,6 +75,7 @@ TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
+  state: PropTypes.object.isRequired,
 };
 
 function a11yProps(index) {
@@ -88,27 +85,22 @@ function a11yProps(index) {
   };
 }
 
-export default function BasicTabs() {
+export default function BasicTabs(props) {
   const [value, setValue] = React.useState(0);
 
-  const [DC, setDC] = useState({pwm1:0,pwm2:0,pwm3:0,pwm4:0,pwm5:0,pwm6:0});
-  const [DC_HelperText, set_DCHelperText] = useState({});
-  const [DC_error, set_DC_error] = useState({pwm1:false,pwm2:false,pwm3:false,pwm4:false,pwm5:false,pwm6:false});
-
-  const [Freq, setFreq] = useState({});
-  const [Freq_HelperText, set_Freq_HelperText] = useState({});
-  const [Freq_error, set_Freq_error] = useState({});
-  
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
+  useEffect(() => {
+    // console.log(props)
+  });
   return (
     <Box sx={{ width: "100%" }}>
       <Box
         sx={{
           borderBottom: 1,
           borderColor: "divider",
+          bgcolor: "#fff"
         }}
       >
         <StyledTabs value={value} onChange={handleChange} variant="fullWidth">
@@ -118,19 +110,9 @@ export default function BasicTabs() {
         </StyledTabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <PWM DC={DC}
-        setDC={setDC}
-        DC_error={DC_error}
-        set_DC_error={set_DC_error}
-        DC_HelperText={DC_HelperText}
-        set_DCHelperText={set_DCHelperText}
-        Freq={Freq}
-        setFreq={setFreq}
-        Freq_error={Freq_error}
-        set_Freq_error={set_Freq_error}
-        Freq_HelperText={Freq_HelperText}
-        set_Freq_HelperText={set_Freq_HelperText}
-        onChange={handleChange}
+        <PWM
+          data={props.data} 
+          setPWMState={props.setPWMState}      
         />
       </TabPanel>
       <TabPanel value={value} index={1}>

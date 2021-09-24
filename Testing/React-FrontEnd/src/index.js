@@ -2,25 +2,24 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import TabPanel from './Tabs';
+import { StyledEngineProvider } from '@mui/material/styles';
 
 import * as serviceWorker from './serviceWorker';
 
 // ReactDOM.render(<TabPanel />, document.getElementById('root'));
 
 ReactDOM.render (
-    <div>
-        <body>
+    <StyledEngineProvider injectFirst>
+
         <App/>
-        <TabPanel />
-        </body>
-        {/* <div id="footer">
-        copyright &copy; 2021
-        </div> */}
+        </StyledEngineProvider>,
+
+        // {/* <div id="footer">
+        // copyright &copy; 2021
+        // </div> */},
 
        
 
-    </div>,
 
     document.getElementById('root')
 );
