@@ -72,7 +72,7 @@ const int8_t buttonPin         = 50; // Unused Pin no Button
 
 const uint8_t numPWMs = 6;
 const int8_t PWMPins[numPWMs]     = {29,30,14,22,23,16};
-uint16_t pwmValue[numPWMs] = {50,100,125,175,200,255};
+uint16_t pwmValue[numPWMs] = {500,1000,2048,3000,3500,4096};
 uint16_t pwmFrequency[numPWMs] = {245,245,200,200,100,100};
 
 const uint8_t numADCs = 6;
@@ -143,7 +143,8 @@ void setPinModes(){
     digitalWrite(IL1Pin,LOW);
     digitalWrite(IL2Pin,LOW);
     digitalWrite(ignitionCtlPin,LOW);
-    
+    analogWriteResolution(12);  // analogWrite value 0 to 4095, or 4096 for high
+
     uint8_t i;
     for (i = 0; i < numPWMs; i++) pinMode(PWMPins[i], OUTPUT);
     for (i = 0; i < numADCs; i++) pinMode(analogInPins[i], INPUT);

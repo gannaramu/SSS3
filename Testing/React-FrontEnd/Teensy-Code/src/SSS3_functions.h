@@ -661,36 +661,44 @@ uint8_t setTerminationSwitches() {
 }
 
 void getTerminationSwitches(uint8_t terminationSettings) {
-  CAN0term1 = (terminationSettings & 0b00000001) >> 0;
-  CAN1term1 = (terminationSettings & 0b00000010) >> 1;
-  CAN2term1 = (terminationSettings & 0b00000100) >> 2;
-  PWM4Out_28 = (terminationSettings & 0b00001000) >> 3;
-  CAN1out   = (terminationSettings & 0b00010000) >> 4;
+  PWM3Out = (terminationSettings & 0b00000001) >> 0;
+  PWM4Out = (terminationSettings & 0b00000010) >> 1;
+  CAN2term = (terminationSettings & 0b00000100) >> 2;
+  CAN2term = (terminationSettings & 0b00001000) >> 3;
+  PWM1Out   = (terminationSettings & 0b00010000) >> 4;
+  PWM2Out   = (terminationSettings & 0b00100000) >> 5;
   PWM5Out   = (terminationSettings & 0b01000000) >> 6;
   PWM6Out   = (terminationSettings & 0b10000000) >> 7;
 }
 
 
 uint8_t setPWMSwitches() {
-  uint8_t PWMSettings =  uint8_t( CAN0term | CAN1term << 1 | CAN2term << 2 |  LINmaster << 3 |
-                                  PWM1Out << 4 | PWM2Out << 5 | PWM3Out << 6 | PWM4Out << 7);
+  uint8_t PWMSettings =  uint8_t( PWM3Out | PWM4Out << 1 | CAN2term << 2 |  CAN2term << 3 |
+                                  PWM1Out << 4 | PWM2Out << 5 | PWM5Out << 6 | PWM6Out << 7);
+
+  // uint8_t PWMSettings =  uint8_t( false | false << 1 | false << 2 |  false << 3 |
+  // false << 4 | false << 5 | false << 6 | false << 7);
+  
   digitalWrite(CSconfigBPin, LOW);
   SPI.transfer(PWMSettings);
   digitalWrite(CSconfigBPin, HIGH);
   status_buffer_1[PWM_SETTINGS_LOC] = PWMSettings;
+  Serial.print("PWM Settings: ");
+  Serial.println(PWMSettings, BIN);
+
   return PWMSettings;
 }
 
 void getPWMSwitches(uint8_t PWMSettings) {
   //Set the termination Switches for U21
-  CAN0term   = (PWMSettings & 0b00000001) >> 0;
-  CAN1term   = (PWMSettings & 0b00000010) >> 1;
+  PWM3Out   = (PWMSettings & 0b00000001) >> 0;
+  PWM4Out   = (PWMSettings & 0b00000010) >> 1;
   CAN2term   = (PWMSettings & 0b00000100) >> 2;
-  LINmaster  = (PWMSettings & 0b00001000) >> 3;
+  CAN2term  = (PWMSettings & 0b00001000) >> 3;
   PWM1Out    = (PWMSettings & 0b00010000) >> 4;
   PWM2Out    = (PWMSettings & 0b00100000) >> 5;
-  PWM3Out    = (PWMSettings & 0b01000000) >> 6;
-  PWM4Out    = (PWMSettings & 0b10000000) >> 7;
+  PWM5Out    = (PWMSettings & 0b01000000) >> 6;
+  PWM6Out    = (PWMSettings & 0b10000000) >> 7;
 }
 
 void setConfigSwitches() {
@@ -1155,7 +1163,7 @@ char settingPins[numSettings][50] = {
   "Port 17 (J18-1)",
   "Ports 1 and 2 (J24-1 and 2)",
   "Port 28 (J18-12)",
-  "Port 2  (J24-2)",
+  "Port 15  (J24-15)",
   "Port 1  (J24-1)",
   "Port 2 (J24-2)",
   "Port 1 (J24-1)",
@@ -1403,7 +1411,7 @@ int16_t setSetting(uint8_t settingNum, int settingValue, bool debugDisplay) {
     return U15U16P0ASwitch;
   }
   else if (settingNum >= 33 && settingNum <= 36 ) {
-    if (settingValue > -1) pwmValue[settingNum - 33] = uint16_t(constrain(settingValue, 0, 256));
+    if (settingValue > -1) pwmValue[settingNum - 33] = uint16_t(constrain(settingValue, 0, 4096));
     else {
       memcpy(&pwmValue[settingNum - 33], &status_buffer_1[(settingNum - 33) * 2 + 35], 2);
     }
@@ -1797,6 +1805,11 @@ int16_t setSetting(uint8_t settingNum, int settingValue, bool debugDisplay) {
     for (uint8_t i = 0; i < numPWMs; i++) analogWrite(PWMPins[i], pwmValue[i]);
     if (debugDisplay) {
       Serial.println(pwmFrequency[settingNum - 81]);
+      for(int i=0; i<numPWMs; i++) {
+        Serial.print("pwmFrequency");
+        Serial.println(pwmFrequency[i]);
+      }
+
     }
     if      (settingNum == 81) {
       pwmFrequency[1] = pwmFrequency[0];
@@ -1811,10 +1824,11 @@ int16_t setSetting(uint8_t settingNum, int settingValue, bool debugDisplay) {
       memcpy(&status_buffer_1[PWM3_FREQ_LOC], &pwmFrequency[2], 2);
     }
     else if (settingNum == 84) {
-      pwmFrequency[2] = pwmFrequency[3];
-      memcpy(&status_buffer_1[PWM3_FREQ_LOC], &pwmFrequency[3], 2);
+      pwmFrequency[4] = pwmFrequency[3];
+      memcpy(&status_buffer_1[PWM4_FREQ_LOC], &pwmFrequency[3], 2);
     }
     else if (settingNum == 85) {
+      pwmFrequency[3] = pwmFrequency[4];
       memcpy(&status_buffer_1[PWM5_FREQ_LOC], &pwmFrequency[4], 2);
     }
     return pwmFrequency[settingNum - 81];
@@ -1992,10 +2006,10 @@ void fastSetSetting() {
     setLimits(currentSetting);
     if (commandString.length() > 0) {
       long settingValue = constrain(commandString.toInt(), knobLowLimit, knobHighLimit);
-      returnval = setSetting(currentSetting, settingValue, DEBUG_OFF);
+      returnval = setSetting(currentSetting, settingValue, DEBUG_ON);
     }
     else {
-      returnval = setSetting(currentSetting, -1, DEBUG_OFF);
+      returnval = setSetting(currentSetting, -1, DEBUG_ON);
     }
     Serial.print("SET ");
     Serial.print(currentSetting);

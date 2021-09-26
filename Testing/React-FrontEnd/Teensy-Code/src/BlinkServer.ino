@@ -65,11 +65,12 @@ int map_duty_cycle(float duty_cycle)
   Serial.print("map_duty_cycle input : ");
   Serial.println(duty_cycle);
 
-  if (duty_cycle < 0)
-    duty_cycle = 0;
-  if (duty_cycle > 100)
-    duty_cycle = 100;
-  int output = map(duty_cycle, 0, 100, 0, 256);
+  // if (duty_cycle < 0)
+  //   duty_cycle = 0;
+  // if (duty_cycle > 100)
+  //   duty_cycle = 100;
+  // int output = map(duty_cycle, 0, 100, 0, 256);
+  int output = duty_cycle;
   return output;
 }
 
@@ -77,28 +78,51 @@ void read_PWM(Request &req, Response &res)
 {
   DynamicJsonDocument response(2048);
   char json[2048];
-  int idx = 33 - 33;
   Serial.print("Got GET Request for PWM returned: ");
 
-  response["pwm1"]["duty"] = pwmValue[0];
-  response["pwm2"]["duty"] = pwmValue[1]; 
-  response["pwm3"]["duty"] = pwmValue[2];
-  response["pwm4"]["duty"] = pwmValue[3];
-  response["pwm5"]["duty"] = pwmValue[4];
-  response["pwm6"]["duty"] = pwmValue[5];
+  response["pwm1"]["duty"]["value"] = pwmValue[0];
+  response["pwm1"]["freq"]["value"] = pwmFrequency[0];
+  response["pwm1"]["switch"]["value"] = PWM1Out;
+  response["pwm1"]["switch"]["meta"] = "U41-D5";
 
-  serializeJson(response, json);
+  response["pwm2"]["duty"]["value"] = pwmValue[1];
+  response["pwm2"]["freq"]["value"] = pwmFrequency[1];
+  response["pwm2"]["switch"]["value"] = PWM2Out;
+  response["pwm2"]["switch"]["meta"] = "U42-D6";
+
+  response["pwm3"]["duty"]["value"] = pwmValue[2];
+  response["pwm3"]["freq"]["value"] = pwmFrequency[2];
+  response["pwm3"]["switch"]["value"] = PWM3Out;
+  response["pwm3"]["switch"]["meta"] = "U43-D1";
+
+  response["pwm4"]["duty"]["value"] = pwmValue[3];
+  response["pwm4"]["freq"]["value"] = pwmFrequency[3];
+  response["pwm4"]["switch"]["value"] = PWM4Out;
+  response["pwm4"]["switch"]["meta"] = "U44-D2";
+
+  response["pwm5"]["duty"]["value"] = pwmValue[4];
+  response["pwm5"]["freq"]["value"] = pwmFrequency[4];
+  response["pwm5"]["switch"]["value"] = PWM5Out;
+  response["pwm5"]["switch"]["meta"] = "U45-D7";
+
+  response["pwm6"]["duty"]["value"] = pwmValue[5];
+  response["pwm6"]["freq"]["value"] = pwmFrequency[5];
+  response["pwm6"]["switch"]["value"] = PWM6Out;
+  response["pwm6"]["switch"]["meta"] = "U46-D8";
+
+  // serializeJson(response, json);
+  serializeJsonPretty(response, json);
   Serial.println(json);
   res.print(json);
 }
 void update_PWM(Request &req, Response &res)
 {
   // Need to Remove after testing Replace with responsible function
-  uint8_t PWMSettings = uint8_t(true | true << 1 | true << 2 | true << 3 |
-                                true << 4 | true << 5 | true << 6 | true << 7);
-  digitalWrite(CSconfigBPin, LOW);
-  SPI1.transfer(PWMSettings);
-  digitalWrite(CSconfigBPin, HIGH);
+  // uint8_t PWMSettings = uint8_t(true | true << 1 | true << 2 | true << 3 |
+  //                               true << 4 | true << 5 | true << 6 | true << 7);
+  // digitalWrite(CSconfigBPin, LOW);
+  // SPI1.transfer(PWMSettings);
+  // digitalWrite(CSconfigBPin, HIGH);
 
   // JsonObject& config = jb.parseObject( &req);
   Serial.print("Got POST Request for PWM: ");
@@ -111,46 +135,117 @@ void update_PWM(Request &req, Response &res)
   {
     if (doc["pwm1"] or doc["pwm1"] > -1)
     {
-      float pwm1 = doc["pwm1"]["duty"];
+      float pwm = doc["pwm1"]["duty"]["value"];
+      bool sw = doc["pwm1"]["switch"]["value"];
+      float pwm_freq = doc["pwm1"]["freq"]["value"];
+
+      if (sw)
+        PWM1Out = true;
+      else
+        PWM1Out = false;
+      Serial.print("PWM1 Switch : ");
+      Serial.println(PWM1Out);
+
       commandPrefix = "33";
-      commandString = String(map_duty_cycle(pwm1));
+      commandString = String(map_duty_cycle(pwm));
       fastSetSetting();
+      if (pwm_freq != pwmFrequency[0])
+      {
+        commandPrefix = "81";
+        commandString = String(pwm_freq);
+        fastSetSetting();
+      }
     }
+
     if (doc["pwm2"])
     {
-      float pwm2 = doc["pwm2"]["duty"];
+      float pwm = doc["pwm2"]["duty"]["value"];
+      bool sw = doc["pwm2"]["switch"]["value"];
+      float pwm_freq = doc["pwm2"]["freq"]["value"];
+      if (sw)
+        PWM2Out = true;
+      else
+        PWM2Out = false;
       commandPrefix = "34";
-      commandString = String(map_duty_cycle(pwm2));
+      commandString = String(map_duty_cycle(pwm));
       fastSetSetting();
+      if (pwm_freq != pwmFrequency[1]) // check with PWM1 as both are tied to same Timer
+      {
+        commandPrefix = "82";
+        commandString = String( pwmFrequency[1]);
+        fastSetSetting();
+      }
     }
     if (doc["pwm3"])
     {
-      float pwm3 = doc["pwm3"]["duty"];
+      float pwm = doc["pwm3"]["duty"]["value"];
+      bool sw = doc["pwm3"]["switch"]["value"];
+      float pwm_freq = doc["pwm3"]["freq"]["value"];
+      if (sw)
+        PWM3Out = true;
+      else
+        PWM3Out = false;
       commandPrefix = "35";
-      commandString = String(map_duty_cycle(pwm3));
+      commandString = String(map_duty_cycle(pwm));
       fastSetSetting();
+      if (pwm_freq != pwmFrequency[2])
+      {
+        commandPrefix = "83";
+        commandString = String(pwm_freq);
+        fastSetSetting();
+      }
     }
     if (doc["pwm4"])
     {
-      float pwm4 = doc["pwm4"]["duty"];
+      float pwm = doc["pwm4"]["duty"]["value"];
+      bool sw = doc["pwm4"]["switch"]["value"];
+      float pwm_freq = doc["pwm4"]["freq"]["value"];
+
+      if (sw)
+        PWM4Out = true;
+      else
+        PWM4Out = false;
       commandPrefix = "36";
-      commandString = String(map_duty_cycle(pwm4));
+      commandString = String(map_duty_cycle(pwm));
       fastSetSetting();
+      if (pwm_freq != pwmFrequency[3])
+      {
+        commandPrefix = "84";
+        commandString = String(pwm_freq);
+        fastSetSetting();
+      }
     }
     if (doc["pwm5"])
     {
-      float pwm5 = doc["pwm5"]["duty"];
+      float pwm = doc["pwm5"]["duty"]["value"];
+      bool sw = doc["pwm5"]["switch"]["value"];
+      float pwm_freq = doc["pwm5"]["freq"]["value"];
+
+      if (sw)
+        PWM5Out = true;
+      else
+        PWM5Out = false;
       commandPrefix = "87";
-      commandString = String(map_duty_cycle(pwm5));
+      commandString = String(map_duty_cycle(pwm));
       fastSetSetting();
     }
     if (doc["pwm6"])
     {
-      float pwm6 = doc["pwm6"]["duty"];
+      float pwm6 = doc["pwm6"]["duty"]["value"];
+      bool sw = doc["pwm6"]["switch"]["value"];
+      float pwm_freq = doc["pwm6"]["freq"]["value"];
+
+      if (sw)
+        PWM6Out = true;
+      else
+        PWM6Out = false;
       commandPrefix = "88";
       commandString = String(map_duty_cycle(pwm6));
       fastSetSetting();
     }
+    commandPrefix = "67";
+    commandString = "0";
+    fastSetSetting();
     return read_PWM(req, res);
   }
 }
@@ -175,10 +270,12 @@ void updateRelay(Request &req, Response &res)
 
 bool parse_response(uint8_t *buffer)
 {
-  Serial.print((char *)buffer);
-  Serial.println(" EOF");
+  // Serial.print((char *)buffer);
+  // Serial.println(" EOF");
   //Serial.println("parse_response");
   DeserializationError error = deserializeJson(doc, buffer);
+  serializeJsonPretty(doc, Serial);
+
   if (error)
   {
     Serial.print(F("deserializeJson() failed: "));

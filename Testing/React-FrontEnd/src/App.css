@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #1E4D2B;
   min-height: 10vh;
   display: flex;
   flex-direction: column;
@@ -33,10 +33,13 @@
   padding: 10px;
 }
 .App-link {
-  color: #61dafb;
+  color: #1E4D2B;
 }
 
-h1{
+.Button {
+  background-color: #bfccc3;
+}
+/* h1{
   margin: 10px;
   padding: 10px;
   display:inline-block;
@@ -45,7 +48,12 @@ h1{
   display:inline-block;
   margin: 10px;
   padding: 10px
- } 
+ }  */
+
+ h1, h2, h3, h4, h5, h6 {
+  font-family: 'factoria-book', sans-serif;
+  font-weight:normal;
+}
 ToggleButton{
   margin: 10px;
   padding: 10px

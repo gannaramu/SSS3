@@ -33,3 +33,19 @@ code {
    height:30px;   /* Height of the footer */
    /* background:#6cf; */
 }
+
+.smaller-text {
+   font-family: 'prox-regular';
+   letter-spacing: .11em;
+   line-height: 1.1em;
+   font-size: 14px;
+   text-transform:uppercase;
+ }
+
+ .larger-text {
+  font-family: 'prox-regular';
+  letter-spacing: .11em;
+  line-height: 1.1em;
+  font-size: 19px;
+  text-transform:uppercase;
+}

@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 // import { styled } from "@mui/system";
 import { styled } from "@mui/material/styles";
+import CSULogo from "./CSU-Ram-357-617.svg";
 
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
@@ -51,7 +52,7 @@ function a11yProps(index) {
 const StyledTabs = styled(Tabs)({
   borderBottom: "1px solid #e8e8e8",
   "& .MuiTabs-indicator": {
-    backgroundColor: "#1890ff",
+    backgroundColor: "#1E4D2B",
   },
 });
 
@@ -114,15 +115,15 @@ const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
       '"Segoe UI Symbol"',
     ].join(","),
     "&:hover": {
-      color: "#40a9ff",
+      color: "#1E4D2B",
       opacity: 1,
     },
     "&.Mui-selected": {
-      color: "#1890ff",
+      color: "#1E4D2B",
       fontWeight: theme.typography.fontWeightMedium,
     },
     "&.Mui-focusVisible": {
-      backgroundColor: "#d1eaff",
+      backgroundColor: "#1E4D2B",
     },
   })
 );
@@ -175,60 +176,50 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 }));
 const DC_desc = "Duty Cycle";
 
-// const DCChangeHandler = useCallback(({ target: { name, value } }) => {
-//   console.log("DC Handler Inputs: ",name, value);
-//   // props.setDC((state) => ({ ...state, [name]: value }), []);
-//   // props.setPWMDuty(name, value);
-//   setPWMDuty("pwm1", 48);
-//   // if (value > 100) {
-//   //   props.set_DCHelperText(
-//   //     (state) => ({ ...state, [name]: "value should be between 0-100%" }),
-//   //     []
-//   //   );
-//   //   props.set_DC_error((state) => ({ ...state, [name]: true }), []);
-//   // } else {
-//   //   props.set_DCHelperText((state) => ({ ...state, [name]: "" }), []);
-//   //   props.set_DC_error((state) => ({ ...state, [name]: false }), []);
-//   // }
-// });
-
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       ledOn: false,
-      tab: 2,
+      tab: 0,
       pwm: {
         pwm1: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
         pwm2: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
         pwm3: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
         pwm4: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
         pwm5: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
         pwm6: {
           duty: { value: 0, error: 0, helperText: "test" },
           freq: { value: 0, error: 0, helperText: "test" },
+          switch: { value: false, meta: "" },
         },
       },
     };
     this.handleChange = this.handleChange.bind(this);
     // this.setPWMDuty = this.setPWMDuty.bind(this);
+    this.setPWMSwitch = this.setPWMSwitch.bind(this);
 
+    this.post_pwm = this.post_pwm.bind(this);
   }
 
   setLedState(state) {
@@ -250,16 +241,17 @@ class App extends React.Component {
   }
 
   setPWMState_fromResponse(state) {
+    console.log("input of setPWMstatea from response", state);
     let items = this.state.pwm;
     for (const [key, value] of Object.entries(state)) {
       let item = { ...items[key] };
       item["freq"] = {};
-      for (const [key, value] of Object.entries(value)) {
-        console.log(key, value);
+      for (const [key, duty] of Object.entries(value)) {
+        console.log(key, duty);
         if (!(key in item)) {
           item[key] = {};
         }
-        item[key]["value"] = value;
+        item[key]["value"] = duty.value;
         item[key]["error"] = false;
         // item[key]["helperText"] = "teast";
         // item["freq"]["value"] = 123;
@@ -268,7 +260,7 @@ class App extends React.Component {
       }
       items[key] = item;
     }
-    // console.log("items: ", items);
+    console.log("items: ", items);
     this.setState({
       pwm: items,
     });
@@ -281,75 +273,141 @@ class App extends React.Component {
     console.log("Items:", items);
     let item = { ...items[name] };
     console.log("Item:", item);
-    item.duty.value = 48;
+    item.duty.value = duty;
+    if (duty > 4096 || duty < 0) {
+      item.duty.error = true;
+      item.duty.helperText = "value should be between 0-4096";
+    } else {
+      item.duty.error = false;
+      item.duty.helperText = "";
+      items[name] = item;
+    }
+    this.setState({
+      pwm: items,
+    });
+  }
+
+  setPWMSwitch(name, value) {
+    console.log("Input of setPWMSwitch", name, value);
+    let items = this.state.pwm;
+    console.log("Items:", items);
+    let item = { ...items[name] };
+    console.log("Item:", item);
+    item.switch.value = value;
     items[name] = item;
+
+    this.setState({
+      pwm: items,
+    });
+  }
+
+  async post_pwm(event) {
+    console.log("input to post_pwm: ", this.state.pwm);
+
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    var body = this.state.pwm;
+    var raw = JSON.stringify(body);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    let response = await fetch("/pwm", requestOptions);
+    let state = await response.json();
+    console.log(state);
+    this.setPWMState_fromResponse(state);
+    // this.setState({
+    //   ledOn: state !== "0",
+    // });
+    console.log(this.state);
+  }
+
+  setPWMFreq(name, freq) {
+    console.log("Input of setPWMState", name, freq);
+    console.log("State:", this.state.pwm);
+    let items = this.state.pwm;
+    console.log("Items:", items);
+    let item = { ...items[name] };
+    console.log("Item:", item);
+    item.freq.value = freq;
+    if (freq > 4096 || freq < 0) {
+      item.freq.error = true;
+      item.freq.helperText = "value should be between 0-4096";
+      items[name] = item;
+    } else {
+      item.freq.error = false;
+      item.freq.helperText = "";
+      items[name] = item;
+    }
     this.setState({
       pwm: items,
     });
   }
 
   DCChangeHandler(event) {
-    console.log("DC Handler Inputs: ", event.target.name,event.target.value);
+    console.log("DC Handler Inputs: ", event.target.name, event.target.value);
     let value = event.target.value;
     let name = event.target.name;
 
-    // this.setPWMDuty(event.target.name, value);
-    let items = this.state.pwm;
-    console.log("Items:", items);
-    let item = { ...items[name] };
-    console.log("Item:", item);
-    item.duty.value = value;
-    items[name] = item;
-    this.setState({
-      pwm: items,
-    });
-  //   if (value > 100) {
-  //   props.set_DCHelperText(
-  //     (state) => ({ ...state, [name]: "value should be between 0-100%" }),
-  //     []
-  //   );
-  //   props.set_DC_error((state) => ({ ...state, [name]: true }), []);
-  // } else {
-  //   props.set_DCHelperText((state) => ({ ...state, [name]: "" }), []);
-  //   props.set_DC_error((state) => ({ ...state, [name]: false }), []);
-  // }
+    this.setPWMDuty(name, value);
+  }
+
+  SwitchHandler(event) {
+    console.log(
+      "SwitchHandler Inputs: ",
+      event.target.name,
+      event.target.checked
+    );
+    let value = event.target.checked;
+    let name = event.target.name;
+
+    this.setPWMSwitch(name, value);
+  }
+
+  FreqChangeHandler(event) {
+    console.log(
+      "Freq Change Handler Inputs: ",
+      event.target.name,
+      event.target.value
+    );
+    let value = event.target.value;
+    let name = event.target.name;
+
+    if (event.target.name === "pwm1" || event.target.name === "pwm2") {
+      this.setPWMFreq("pwm1", value);
+      this.setPWMFreq("pwm2", value);
+    } else if (event.target.name === "pwm4" || event.target.name === "pwm5") {
+      this.setPWMFreq("pwm4", value);
+      this.setPWMFreq("pwm5", value);
+    }else{
+      this.setPWMFreq(name, value);
+    }
   }
 
   componentDidMount() {
-    fetch("/led")
-      .then((response) => response.text())
-      .then((state) => this.setLedState(state));
-    fetch("/pwm")
-      .then((response) => response.json())
-      .then((state) => this.setPWMState_fromResponse(state));
+    Promise.all([
+      fetch("/led")
+        .then((response) => response.text())
+        .then((state) => this.setLedState(state)),
+      fetch("/pwm")
+        .then((response) => response.json())
+        // .then((state) => console.log(state)),
+        .then((state) => this.setPWMState_fromResponse(state)),
+      // fetch("/switches")
+      //   .then((response) => response.json())
+      //   // .then((state) => console.log(state)),
+      //   .then((state) => this.setPWMState_fromResponse(state)),
+    ]);
   }
 
   async handleStateChange(ledOn) {
     // console.log("input to handleStateChange: ", ledOn);
     this.setPWMDuty("pwm1", 48);
     console.log(this.state.pwm);
-    // var myHeaders = new Headers();
-    // myHeaders.append("Content-Type", "application/json");
-    // var body = {
-    //     'ledOn': ledOn ? 0 : 1
-    // }
-    // var raw = JSON.stringify(body);
-
-    // var requestOptions = {
-    //     method: 'POST',
-    //     headers: myHeaders,
-    //     body: raw,
-    //     redirect: 'follow'
-    // };
-
-    // const response = await fetch("/led", requestOptions)
-    // const state = await response.text();
-    // console.log(state);
-
-    // this.setLedState(state);
-    // // .then(response => response.text())
-    // .then(result => console.log(result))
-    // .catch(error => console.log('error', error));
   }
 
   async handleStateChange2(event) {
@@ -380,9 +438,17 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <>
         <header className="App-header">
-          <h3 style={{ allign: "center" }}>Smart Sensor Simulator 3</h3>
+          <Stack direction="row" spacing={1} style={{ margin: 10 }}>
+            <img
+              src={CSULogo}
+              alt="React Logo"
+              width="50"
+              style={{ allign: "left" }}
+            />
+            <h2>Smart Sensor Simulator 3</h2>
+          </Stack>
         </header>
         <body className="App">
           <Stack direction="row" spacing={1} alignItems="center">
@@ -410,26 +476,37 @@ class App extends React.Component {
                 aria-label="basic tabs example"
                 variant="fullWidth"
               >
-                <Tab label="Item One" {...a11yProps(0)} />
-                <Tab label="Item Two" {...a11yProps(1)} />
-                <Tab label="Item Three" {...a11yProps(2)} />
+                <Tab label="PWM" {...a11yProps(0)} />
+                <Tab label="Potentiometer" {...a11yProps(1)} />
+                <Tab label="CAN" {...a11yProps(2)} />
               </Tabs>
             </Box>
             <TabPanel value={this.state.tab} index={0}>
-              <Stack direction="row" spacing={1} alignItems="top">
+              {/* -------------------------- PWM1 ---------------------------------*/}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
                 <Typography style={{ "margin-top": 10 }}>PWM1</Typography>
-                <Switch name="pwm1-connect" />
+                <Switch
+                  name="pwm1"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm1.switch.value}
+                />
                 <TextField
                   name="pwm1"
                   size="small"
                   id="outlined-basic"
-                  error={this.state.pwm.pwm1.error}
+                  error={this.state.pwm.pwm1.duty.error}
                   label={DC_desc}
                   helperText={
                     this.state.pwm.pwm1.duty.helperText +
                     " " +
                     this.state.pwm.pwm1.duty.value
                   }
+                  value={this.state.pwm.pwm1.duty.value}
                   onChange={this.DCChangeHandler.bind(this)}
                   type="number"
                 />
@@ -438,11 +515,270 @@ class App extends React.Component {
                   size="small"
                   id="outlined-basic"
                   label="Frequency"
-                  // error={props.Freq_error.pwm1}
-                  // onChange={props.FreqChangeHandler}
-                  // helperText={props.Freq_HelperText.pwm1}
-                  value={this.state.pwm.pwm1.duty.value}
+                  error={this.state.pwm.pwm1.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm1.freq.helperText}
+                  value={this.state.pwm.pwm1.freq.value}
+                  type="number"
                 />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
+              </Stack>
+              {/* -------------------------- PWM2 ---------------------------------*/}
+
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
+                <Typography style={{ "margin-top": 10 }}>PWM2</Typography>
+                <Switch
+                  name="pwm2"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm2.switch.value}
+                />
+                <TextField
+                  name="pwm2"
+                  size="small"
+                  id="outlined-basic"
+                  error={this.state.pwm.pwm2.duty.error}
+                  label={DC_desc}
+                  helperText={
+                    this.state.pwm.pwm2.duty.helperText +
+                    " " +
+                    this.state.pwm.pwm2.duty.value
+                  }
+                  value={this.state.pwm.pwm2.duty.value}
+                  onChange={this.DCChangeHandler.bind(this)}
+                  type="number"
+                />
+                <TextField
+                  name="pwm2"
+                  size="small"
+                  id="outlined-basic"
+                  label="Frequency"
+                  error={this.state.pwm.pwm2.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm2.freq.helperText}
+                  value={this.state.pwm.pwm2.freq.value}
+                  type="number"
+                />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
+              </Stack>
+              {/* -------------------------- PWM3 ---------------------------------*/}
+
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
+                <Typography style={{ "margin-top": 10 }}>PWM3</Typography>
+                <Switch
+                  name="pwm3"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm3.switch.value}
+                />
+                <TextField
+                  name="pwm3"
+                  size="small"
+                  id="outlined-basic"
+                  error={this.state.pwm.pwm3.duty.error}
+                  label={DC_desc}
+                  helperText={
+                    this.state.pwm.pwm3.duty.helperText +
+                    " " +
+                    this.state.pwm.pwm3.duty.value
+                  }
+                  value={this.state.pwm.pwm3.duty.value}
+                  onChange={this.DCChangeHandler.bind(this)}
+                  type="number"
+                />
+                <TextField
+                  name="pwm3"
+                  size="small"
+                  id="outlined-basic"
+                  label="Frequency"
+                  error={this.state.pwm.pwm3.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm3.freq.helperText}
+                  value={this.state.pwm.pwm3.freq.value}
+                  type="number"
+                />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
+              </Stack>
+              {/* -------------------------- PWM4 ---------------------------------*/}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
+                <Typography style={{ "margin-top": 10 }}>PWM4</Typography>
+                <Switch
+                  name="pwm4"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm4.switch.value}
+                />
+                <TextField
+                  name="pwm4"
+                  size="small"
+                  id="outlined-basic"
+                  error={this.state.pwm.pwm4.duty.error}
+                  label={DC_desc}
+                  helperText={
+                    this.state.pwm.pwm4.duty.helperText +
+                    " " +
+                    this.state.pwm.pwm4.duty.value
+                  }
+                  value={this.state.pwm.pwm4.duty.value}
+                  onChange={this.DCChangeHandler.bind(this)}
+                  type="number"
+                />
+                <TextField
+                  name="pwm4"
+                  size="small"
+                  id="outlined-basic"
+                  label="Frequency"
+                  error={this.state.pwm.pwm4.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm4.freq.helperText}
+                  value={this.state.pwm.pwm4.freq.value}
+                  type="number"
+                />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
+              </Stack>
+
+              {/* -------------------------- PWM5 ---------------------------------*/}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
+                <Typography style={{ "margin-top": 10 }}>PWM5</Typography>
+                <Switch
+                  name="pwm5"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm5.switch.value}
+                />
+                <TextField
+                  name="pwm5"
+                  size="small"
+                  id="outlined-basic"
+                  error={this.state.pwm.pwm5.duty.error}
+                  label={DC_desc}
+                  helperText={
+                    this.state.pwm.pwm5.duty.helperText +
+                    " " +
+                    this.state.pwm.pwm5.duty.value
+                  }
+                  value={this.state.pwm.pwm5.duty.value}
+                  onChange={this.DCChangeHandler.bind(this)}
+                  type="number"
+                />
+                <TextField
+                  name="pwm5"
+                  size="small"
+                  id="outlined-basic"
+                  label="Frequency"
+                  error={this.state.pwm.pwm5.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm5.freq.helperText}
+                  value={this.state.pwm.pwm5.freq.value}
+                  type="number"
+                />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
+              </Stack>
+
+              {/* -------------------------- PWM6 ---------------------------------*/}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="top"
+                style={{ margin: 5, padding: 5 }}
+              >
+                <Typography style={{ "margin-top": 10 }}>PWM6</Typography>
+                <Switch
+                  name="pwm6"
+                  onChange={this.SwitchHandler.bind(this)}
+                  checked={this.state.pwm.pwm6.switch.value}
+                />
+                <TextField
+                  name="pwm6"
+                  size="small"
+                  id="outlined-basic"
+                  error={this.state.pwm.pwm6.duty.error}
+                  label={DC_desc}
+                  helperText={
+                    this.state.pwm.pwm6.duty.helperText +
+                    " " +
+                    this.state.pwm.pwm6.duty.value
+                  }
+                  value={this.state.pwm.pwm6.duty.value}
+                  onChange={this.DCChangeHandler.bind(this)}
+                  type="number"
+                />
+                <TextField
+                  name="pwm6"
+                  size="small"
+                  id="outlined-basic"
+                  label="Frequency"
+                  error={this.state.pwm.pwm6.freq.error}
+                  onChange={this.FreqChangeHandler.bind(this)}
+                  helperText={this.state.pwm.pwm6.freq.helperText}
+                  value={this.state.pwm.pwm6.freq.value}
+                  type="number"
+                />
+                <Box sx={{ "& button": { m: 0 } }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={this.post_pwm.bind(this)}
+                  >
+                    Apply
+                  </Button>
+                </Box>
               </Stack>
             </TabPanel>
             <TabPanel value={this.state.tab} index={1}>
@@ -453,7 +789,7 @@ class App extends React.Component {
             </TabPanel>
           </Box>
         </body>
-      </div>
+      </>
     );
   }
 }

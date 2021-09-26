@@ -31,7 +31,7 @@
   "devDependencies": {
     "awot-scripts": "0.0.28"
   },
-  "proxy": "https://b267419f-9780-4c94-9305-3de865b859fa.mock.pstmn.io",
+  "proxy": "http://192.168.1.177/",
   "awot-static": {
     "sources": "./build",
     "indexFile": "index.html",
