@@ -680,7 +680,7 @@ uint8_t setPWMSwitches() {
   // false << 4 | false << 5 | false << 6 | false << 7);
   
   digitalWrite(CSconfigBPin, LOW);
-  SPI.transfer(PWMSettings);
+  SPI1.transfer(PWMSettings);
   digitalWrite(CSconfigBPin, HIGH);
   status_buffer_1[PWM_SETTINGS_LOC] = PWMSettings;
   Serial.print("PWM Settings: ");
@@ -1821,11 +1821,11 @@ int16_t setSetting(uint8_t settingNum, int settingValue, bool debugDisplay) {
     }
     else if (settingNum == 83) {
       pwmFrequency[2] = pwmFrequency[2];
-      memcpy(&status_buffer_1[PWM3_FREQ_LOC], &pwmFrequency[2], 2);
+      memcpy(&status_buffer_1[PWM1_FREQ_LOC], &pwmFrequency[2], 2);
     }
     else if (settingNum == 84) {
       pwmFrequency[4] = pwmFrequency[3];
-      memcpy(&status_buffer_1[PWM4_FREQ_LOC], &pwmFrequency[3], 2);
+      memcpy(&status_buffer_1[PWM3_FREQ_LOC], &pwmFrequency[3], 2);
     }
     else if (settingNum == 85) {
       pwmFrequency[3] = pwmFrequency[4];

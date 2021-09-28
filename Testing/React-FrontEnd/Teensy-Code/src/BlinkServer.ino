@@ -243,9 +243,7 @@ void update_PWM(Request &req, Response &res)
       commandString = String(map_duty_cycle(pwm6));
       fastSetSetting();
     }
-    commandPrefix = "67";
-    commandString = "0";
-    fastSetSetting();
+    setPWMSwitches();
     return read_PWM(req, res);
   }
 }

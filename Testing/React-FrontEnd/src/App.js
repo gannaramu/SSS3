@@ -17,6 +17,10 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import PWM from "./PWM";
+import Pot from "./Pot";
+
+import { PWMD, Duty, Freq, SW } from "./data";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -176,6 +180,16 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 }));
 const DC_desc = "Duty Cycle";
 
+
+const pwm1 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+const pwm2 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+const pwm3 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+const pwm4 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+const pwm5 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+const pwm6 = PWMD(Duty(50, false, "test_child"), Freq(331, false, "test_child"), SW(false, "test_child"));
+
+
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -183,42 +197,49 @@ class App extends React.Component {
       ledOn: false,
       tab: 0,
       pwm: {
-        pwm1: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
-        pwm2: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
-        pwm3: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
-        pwm4: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
-        pwm5: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
-        pwm6: {
-          duty: { value: 0, error: 0, helperText: "test" },
-          freq: { value: 0, error: 0, helperText: "test" },
-          switch: { value: false, meta: "" },
-        },
+        pwm1: pwm1,
+        pwm2: pwm2,
+        pwm3: pwm3,
+        pwm4: pwm4,
+        pwm5: pwm5,
+        pwm6: pwm6,
+        // {
+        //   // duty: { value: 0, error: 0, helperText: "test" },
+        //   // freq: { value: 0, error: 0, helperText: "test" },
+        //   // switch: { value: false, meta: "" },
+        // },
+        // pwm2: {
+        //   duty: { value: 0, error: 0, helperText: "test" },
+        //   freq: { value: 0, error: 0, helperText: "test" },
+        //   switch: { value: false, meta: "" },
+        // },
+        // pwm3: {
+        //   duty: { value: 0, error: 0, helperText: "test" },
+        //   freq: { value: 0, error: 0, helperText: "test" },
+        //   switch: { value: false, meta: "" },
+        // },
+        // pwm4: {
+        //   duty: { value: 0, error: 0, helperText: "test" },
+        //   freq: { value: 0, error: 0, helperText: "test" },
+        //   switch: { value: false, meta: "" },
+        // },
+        // pwm5: {
+        //   duty: { value: 0, error: 0, helperText: "test" },
+        //   freq: { value: 0, error: 0, helperText: "test" },
+        //   switch: { value: false, meta: "" },
+        // },
+        // pwm6: {
+        //   duty: { value: 0, error: 0, helperText: "test" },
+        //   freq: { value: 0, error: 0, helperText: "test" },
+        //   switch: { value: false, meta: "" },
+        // },
       },
     };
     this.handleChange = this.handleChange.bind(this);
     // this.setPWMDuty = this.setPWMDuty.bind(this);
     this.setPWMSwitch = this.setPWMSwitch.bind(this);
-
+    this.setPWMDuty = this.setPWMDuty.bind(this);
+    this.setPWMFreq = this.setPWMFreq.bind(this);
     this.post_pwm = this.post_pwm.bind(this);
   }
 
@@ -267,8 +288,8 @@ class App extends React.Component {
   }
 
   setPWMDuty(name, duty) {
-    console.log("Input of setPWMState", name, duty);
-    console.log("State:", this.state.pwm);
+    console.log("Input of setPWMDuty", name, duty);
+    // console.log("State:", this.state.pwm);
     let items = this.state.pwm;
     console.log("Items:", items);
     let item = { ...items[name] };
@@ -293,12 +314,13 @@ class App extends React.Component {
     console.log("Items:", items);
     let item = { ...items[name] };
     console.log("Item:", item);
-    item.switch.value = value;
+    item.sw.value = value;
     items[name] = item;
 
     this.setState({
       pwm: items,
     });
+    this.post_pwm();
   }
 
   async post_pwm(event) {
@@ -383,25 +405,21 @@ class App extends React.Component {
     } else if (event.target.name === "pwm4" || event.target.name === "pwm5") {
       this.setPWMFreq("pwm4", value);
       this.setPWMFreq("pwm5", value);
-    }else{
+    } else {
       this.setPWMFreq(name, value);
     }
   }
 
   componentDidMount() {
-    Promise.all([
-      fetch("/led")
-        .then((response) => response.text())
-        .then((state) => this.setLedState(state)),
-      fetch("/pwm")
-        .then((response) => response.json())
-        // .then((state) => console.log(state)),
-        .then((state) => this.setPWMState_fromResponse(state)),
-      // fetch("/switches")
-      //   .then((response) => response.json())
-      //   // .then((state) => console.log(state)),
-      //   .then((state) => this.setPWMState_fromResponse(state)),
-    ]);
+    // Promise.all([
+    //   fetch("/led")
+    //     .then((response) => response.text())
+    //     .then((state) => this.setLedState(state)),
+    //   fetch("/pwm")
+    //     .then((response) => response.json())
+    //     // .then((state) => console.log(state)),
+    //     .then((state) => this.setPWMState_fromResponse(state)),
+    // ]);
   }
 
   async handleStateChange(ledOn) {
@@ -482,310 +500,79 @@ class App extends React.Component {
               </Tabs>
             </Box>
             <TabPanel value={this.state.tab} index={0}>
-              {/* -------------------------- PWM1 ---------------------------------*/}
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM1</Typography>
-                <Switch
-                  name="pwm1"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm1.switch.value}
-                />
-                <TextField
-                  name="pwm1"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm1.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm1.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm1.duty.value
-                  }
-                  value={this.state.pwm.pwm1.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm1"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm1.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm1.freq.helperText}
-                  value={this.state.pwm.pwm1.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
-              {/* -------------------------- PWM2 ---------------------------------*/}
-
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM2</Typography>
-                <Switch
-                  name="pwm2"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm2.switch.value}
-                />
-                <TextField
-                  name="pwm2"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm2.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm2.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm2.duty.value
-                  }
-                  value={this.state.pwm.pwm2.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm2"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm2.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm2.freq.helperText}
-                  value={this.state.pwm.pwm2.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
-              {/* -------------------------- PWM3 ---------------------------------*/}
-
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM3</Typography>
-                <Switch
-                  name="pwm3"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm3.switch.value}
-                />
-                <TextField
-                  name="pwm3"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm3.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm3.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm3.duty.value
-                  }
-                  value={this.state.pwm.pwm3.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm3"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm3.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm3.freq.helperText}
-                  value={this.state.pwm.pwm3.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
-              {/* -------------------------- PWM4 ---------------------------------*/}
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM4</Typography>
-                <Switch
-                  name="pwm4"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm4.switch.value}
-                />
-                <TextField
-                  name="pwm4"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm4.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm4.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm4.duty.value
-                  }
-                  value={this.state.pwm.pwm4.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm4"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm4.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm4.freq.helperText}
-                  value={this.state.pwm.pwm4.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
-
-              {/* -------------------------- PWM5 ---------------------------------*/}
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM5</Typography>
-                <Switch
-                  name="pwm5"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm5.switch.value}
-                />
-                <TextField
-                  name="pwm5"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm5.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm5.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm5.duty.value
-                  }
-                  value={this.state.pwm.pwm5.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm5"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm5.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm5.freq.helperText}
-                  value={this.state.pwm.pwm5.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
-
-              {/* -------------------------- PWM6 ---------------------------------*/}
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="top"
-                style={{ margin: 5, padding: 5 }}
-              >
-                <Typography style={{ "margin-top": 10 }}>PWM6</Typography>
-                <Switch
-                  name="pwm6"
-                  onChange={this.SwitchHandler.bind(this)}
-                  checked={this.state.pwm.pwm6.switch.value}
-                />
-                <TextField
-                  name="pwm6"
-                  size="small"
-                  id="outlined-basic"
-                  error={this.state.pwm.pwm6.duty.error}
-                  label={DC_desc}
-                  helperText={
-                    this.state.pwm.pwm6.duty.helperText +
-                    " " +
-                    this.state.pwm.pwm6.duty.value
-                  }
-                  value={this.state.pwm.pwm6.duty.value}
-                  onChange={this.DCChangeHandler.bind(this)}
-                  type="number"
-                />
-                <TextField
-                  name="pwm6"
-                  size="small"
-                  id="outlined-basic"
-                  label="Frequency"
-                  error={this.state.pwm.pwm6.freq.error}
-                  onChange={this.FreqChangeHandler.bind(this)}
-                  helperText={this.state.pwm.pwm6.freq.helperText}
-                  value={this.state.pwm.pwm6.freq.value}
-                  type="number"
-                />
-                <Box sx={{ "& button": { m: 0 } }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={this.post_pwm.bind(this)}
-                  >
-                    Apply
-                  </Button>
-                </Box>
-              </Stack>
+             
+              <PWM
+                name="pwm1"
+                data={this.state.pwm.pwm1}
+                Title={"PWM1"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
+              <PWM
+                name="pwm2"
+                data={this.state.pwm.pwm2}
+                Title={"PWM1"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
+              <PWM
+                name="pwm3"
+                data={this.state.pwm.pwm3}
+                Title={"PWM2"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
+              <PWM
+                name="pwm4"
+                data={this.state.pwm.pwm4}
+                Title={"PWM3"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
+              <PWM
+                name="pwm5"
+                data={this.state.pwm.pwm5}
+                Title={"PWM4"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
+              <PWM
+                name="pwm6"
+                data={this.state.pwm.pwm6}
+                Title={"PWM5"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
             </TabPanel>
             <TabPanel value={this.state.tab} index={1}>
-              Item Two
+              <Pot
+                data={this.state.pwm.pwm1}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+              />
             </TabPanel>
             <TabPanel value={this.state.tab} index={2}>
-              Item Three
+              <PWM
+                name="pwm1"
+                data={this.state.pwm.pwm1}
+                Title={"PWM1-Test"}
+                setPWMSwitch={this.setPWMSwitch}
+                setPWMDuty={this.setPWMDuty}
+                setPWMFreq={this.setPWMFreq}
+                setPWMSwitch={this.setPWMSwitch}
+              />
             </TabPanel>
           </Box>
         </body>

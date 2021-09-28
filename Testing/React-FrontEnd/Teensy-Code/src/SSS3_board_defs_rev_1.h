@@ -127,6 +127,8 @@ void setPinModes(){
     pinMode(CSCANPin,        OUTPUT);
     pinMode(CSconfigAPin,    OUTPUT);
     pinMode(CSconfigBPin,    OUTPUT);
+    pinMode(CSconfigCPin,    OUTPUT);
+    pinMode(CSconfigDPin,    OUTPUT);
 
     pinMode(IH1Pin,          OUTPUT);
     pinMode(IH2Pin,          OUTPUT);
@@ -137,6 +139,9 @@ void setPinModes(){
     pinMode(INTCANPin,        INPUT);
     digitalWrite(CSconfigAPin, HIGH);
     digitalWrite(CSconfigBPin, HIGH);
+    digitalWrite(CSconfigCPin, HIGH);
+    digitalWrite(CSconfigDPin, HIGH);
+
     digitalWrite(redLEDpin,    HIGH);
     digitalWrite(greenLEDpin,  LOW);
     digitalWrite(IH2Pin,LOW);
